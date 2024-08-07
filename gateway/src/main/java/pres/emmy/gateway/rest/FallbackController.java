@@ -12,6 +12,7 @@ import pers.wdcy.result.reactor.result.Result;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -26,9 +27,13 @@ public class FallbackController {
                     Exception exception = exchange.getAttribute(ServerWebExchangeUtils.CIRCUITBREAKER_EXECUTION_EXCEPTION_ATTR);
                     Collection<String> urls = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_ORIGINAL_REQUEST_URL_ATTR);
                     log.error("服务调用失败URL:{}", urls, exception);
-                    return Result.error(String.format("服务调用失败，URL: %s, 原因：%s, 负载：%s:%s，服务：%s", urls, exception.getMessage(),
-                            defaultResponse.getServer().getHost(), defaultResponse.getServer().getPort(),
-                            defaultResponse.getServer().getServiceId().toLowerCase()));
+                    if (Objects.nonNull(defaultResponse) && Objects.nonNull(exception)) {
+                        return Result.error(String.format("服务调用失败，URL: %s, 原因：%s, 负载：%s:%s，服务：%s", urls, exception.getMessage(),
+                                defaultResponse.getServer().getHost(), defaultResponse.getServer().getPort(),
+                                defaultResponse.getServer().getServiceId().toLowerCase()));
+                    } else {
+                        return  Result.error("未知错误");
+                    }
                 });
     }
 

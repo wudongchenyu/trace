@@ -14,6 +14,7 @@ import org.springframework.cloud.circuitbreaker.resilience4j.ReactiveResilience4
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JConfigBuilder;
 import org.springframework.cloud.client.circuitbreaker.Customizer;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.gateway.filter.factory.RequestRateLimiterGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.factory.RetryGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.factory.SpringCloudCircuitBreakerFilterFactory;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -46,7 +47,7 @@ public class RouterConfiguration {
                         .filters(gatewayFilterSpec -> gatewayFilterSpec.stripPrefix(0)
                                 .circuitBreaker(circuitBreaker())
                                 .retry(retryConsumer())
-//                                .requestRateLimiter()
+                                .requestRateLimiter(rateLimiter())
                         )
                                 .uri(URI.create("lb://consumer"))
                 )
@@ -54,7 +55,7 @@ public class RouterConfiguration {
                                 .filters(gatewayFilterSpec -> gatewayFilterSpec.stripPrefix(0)
                                                 .circuitBreaker(circuitBreaker())
                                                 .retry(retryConsumer())
-//                                .requestRateLimiter()
+                                        .requestRateLimiter(rateLimiter())
                                 )
                                 .uri(URI.create("lb://worker"))
                 )
@@ -110,7 +111,7 @@ public class RouterConfiguration {
     }
 
     @Bean
-    Consumer<SpringCloudCircuitBreakerFilterFactory.Config> rateConsumer() {
+    Consumer<RequestRateLimiterGatewayFilterFactory.Config> rateLimiter() {
         return config -> RateLimiterConfig.custom()
                 .timeoutDuration(Duration.ofSeconds(5))
                 .limitRefreshPeriod(Duration.ofSeconds(1))
