@@ -1,20 +1,15 @@
 package pres.emmy.gateway.config;
 
-import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.core.IntervalBiFunction;
-import io.github.resilience4j.ratelimiter.RateLimiterConfig;
-import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
-import io.github.resilience4j.retry.RetryConfig;
-import io.github.resilience4j.timelimiter.TimeLimiterConfig;
-import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
-import lombok.extern.slf4j.Slf4j;
+import java.net.URI;
+import java.time.Duration;
+import java.util.Set;
+import java.util.function.Consumer;
+
 import org.slf4j.MDC;
 import org.springframework.cloud.circuitbreaker.resilience4j.ReactiveResilience4JCircuitBreakerFactory;
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JConfigBuilder;
 import org.springframework.cloud.client.circuitbreaker.Customizer;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
-import org.springframework.cloud.gateway.filter.factory.RequestRateLimiterGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.factory.RetryGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.factory.SpringCloudCircuitBreakerFilterFactory;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -25,15 +20,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.core.IntervalBiFunction;
+import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
+import io.github.resilience4j.retry.RetryConfig;
+import io.github.resilience4j.timelimiter.TimeLimiterConfig;
+import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
+import lombok.extern.slf4j.Slf4j;
 import pers.wdcy.result.reactor.exception.BusinessException;
 import pers.wdcy.result.reactor.exception.GlobalException;
 import pers.wdcy.result.reactor.result.Result;
 import reactor.netty.http.client.HttpClient;
-
-import java.net.URI;
-import java.time.Duration;
-import java.util.Set;
-import java.util.function.Consumer;
 
 @Slf4j
 @Configuration
@@ -47,7 +47,7 @@ public class RouterConfiguration {
                         .filters(gatewayFilterSpec -> gatewayFilterSpec.stripPrefix(0)
                                 .circuitBreaker(circuitBreaker())
                                 .retry(retryConsumer())
-                                .requestRateLimiter(rateLimiter())
+//                                .requestRateLimiter(rateLimiter())
                         )
                                 .uri(URI.create("lb://consumer"))
                 )
@@ -55,7 +55,7 @@ public class RouterConfiguration {
                                 .filters(gatewayFilterSpec -> gatewayFilterSpec.stripPrefix(0)
                                                 .circuitBreaker(circuitBreaker())
                                                 .retry(retryConsumer())
-                                        .requestRateLimiter(rateLimiter())
+//                                        .requestRateLimiter(rateLimiter())
                                 )
                                 .uri(URI.create("lb://worker"))
                 )
@@ -110,14 +110,14 @@ public class RouterConfiguration {
         return factory;
     }
 
-    @Bean
-    Consumer<RequestRateLimiterGatewayFilterFactory.Config> rateLimiter() {
-        return config -> RateLimiterConfig.custom()
-                .timeoutDuration(Duration.ofSeconds(5))
-                .limitRefreshPeriod(Duration.ofSeconds(1))
-                .limitForPeriod(1000)
-                .build();
-    }
+//    @Bean
+//    Consumer<RequestRateLimiterGatewayFilterFactory.Config> rateLimiter() {
+//        return config -> RateLimiterConfig.custom()
+//                .timeoutDuration(Duration.ofSeconds(5))
+//                .limitRefreshPeriod(Duration.ofSeconds(1))
+//                .limitForPeriod(1000)
+//                .build();
+//    }
 
     @Bean
     Consumer<RetryGatewayFilterFactory.RetryConfig> retryConsumer() {
