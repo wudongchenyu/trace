@@ -1,6 +1,7 @@
 package pres.emmy.worker.config;
 
-import org.springframework.aot.hint.ResourcePatternHints;
+import java.io.IOException;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -14,8 +15,6 @@ import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
-
-import java.io.IOException;
 
 @Configuration
 public class HttpPostProcessor implements ResourceLoaderAware, BeanDefinitionRegistryPostProcessor {
